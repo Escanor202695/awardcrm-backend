@@ -60,14 +60,16 @@ const dailyReportSchema = new mongoose.Schema({
   },
   equipmentUsed: [String],
   materialsReceived: [{
-    material: String,
-    quantity: String,
-    supplier: String
+    material: { type: String },
+    quantity: { type: String },
+    supplier: { type: String }
   }],
   incidentReports: [{
-    type: String,
-    description: String,
-    actionTaken: String
+    type: new mongoose.Schema({
+      type: { type: String, required: true },
+      description: { type: String },
+      actionTaken: { type: String }
+    }, { _id: false })
   }]
 }, {
   timestamps: true

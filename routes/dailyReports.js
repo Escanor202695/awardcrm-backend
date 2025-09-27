@@ -1,7 +1,7 @@
 const express = require('express');
 const DailyReport = require('../models/DailyReport');
 const { auth } = require('../middleware/auth');
-
+const Project = require('../models/Project');
 const router = express.Router();
 
 // Get daily reports by project
@@ -38,10 +38,24 @@ router.get('/project/:projectId', auth, async (req, res) => {
 // Create daily report
 router.post('/', auth, async (req, res) => {
   try {
+
+     const { project } = req.body;
+    
+        // Check if project exists
+        const existingProject = await Project.findById(project);
+        if (!existingProject) {
+          return res.status(400).json({ message: 'Invalid project ID: project does not exist' });
+        }
+
+
+
     const report = new DailyReport({
       ...req.body,
       reportedBy: req.user._id
     });
+
+       
+    
     await report.save();
     await report.populate('reportedBy', 'name');
     

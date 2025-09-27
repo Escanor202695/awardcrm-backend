@@ -2,7 +2,7 @@
 const express = require('express');
 const Material = require('../models/Material');
 const { auth } = require('../middleware/auth');
-
+const Project = require('../models/Project');
 const router = express.Router();
 
 // Get materials by project
@@ -35,6 +35,16 @@ router.get('/project/:projectId', auth, async (req, res) => {
 // Create material
 router.post('/', auth, async (req, res) => {
   try {
+
+        const { project } = req.body;
+
+    // Check if project exists
+    const existingProject = await Project.findById(project);
+    if (!existingProject) {
+      return res.status(400).json({ message: 'Invalid project ID: project does not exist' });
+    }
+
+
     const material = new Material(req.body);
     await material.save();
     await material.populate('supplier', 'company contactName phone');

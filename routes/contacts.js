@@ -2,7 +2,7 @@
 const express = require('express');
 const Contact = require('../models/Contact');
 const { auth } = require('../middleware/auth');
-
+const Project = require('../models/Project');
 const router = express.Router();
 
 // Get all contacts
@@ -36,6 +36,15 @@ router.get('/', auth, async (req, res) => {
 // Create contact
 router.post('/', auth, async (req, res) => {
   try {
+        const { projects } = req.body;
+
+        console.log(projects)
+    
+        // Check if project exists
+        const existingProject = await Project.findById(projects);
+        if (!existingProject) {
+          return res.status(400).json({ message: 'Invalid project ID: project does not exist' });
+        }
     const contact = new Contact(req.body);
     await contact.save();
     

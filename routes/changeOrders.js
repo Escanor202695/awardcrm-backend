@@ -1,7 +1,7 @@
 const express = require('express');
 const ChangeOrder = require('../models/ChangeOrder');
 const { auth } = require('../middleware/auth');
-
+const Project = require('../models/Project');
 const router = express.Router();
 
 // Get change orders by project
@@ -34,10 +34,18 @@ router.get('/project/:projectId', auth, async (req, res) => {
 // Create change order
 router.post('/', auth, async (req, res) => {
   try {
+    const { project } = req.body;
+
+    // Check if project exists
+    const existingProject = await Project.findById(project);
+    if (!existingProject) {
+      return res.status(400).json({ message: 'Invalid project ID: project does not exist' });
+    }
+
     const changeOrder = new ChangeOrder(req.body);
     await changeOrder.save();
-    
     res.status(201).json(changeOrder);
+
   } catch (error) {
     res.status(400).json({ message: error.message });
   }
