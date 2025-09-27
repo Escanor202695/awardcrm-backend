@@ -37,8 +37,8 @@ router.get('/:id', auth, async (req, res) => {
   try {
     const project = await Project.findById(req.params.id)
       .populate('manager', 'name email')
-      .populate('openRFIs')
-      .populate('openPunchItems');
+      // .populate('openRFIs')
+      // .populate('openPunchItems');
       
     if (!project) {
       return res.status(404).json({ message: 'Project not found' });

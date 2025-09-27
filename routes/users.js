@@ -20,7 +20,7 @@ router.get('/', auth, authorize('admin'), async (req, res) => {
     }
     
     const users = await User.find(filter)
-      .select('-password') // Exclude password from results
+      .select('-password')
       .sort({ createdAt: -1 })
       .limit(limit * 1)
       .skip((page - 1) * limit);
