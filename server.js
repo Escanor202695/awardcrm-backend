@@ -5,6 +5,7 @@ const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
 require("dotenv").config();
+const path = require('path');
 
 // Import routes
 const authRoutes = require("./routes/auth");
@@ -20,6 +21,7 @@ const rfiRoutes = require("./routes/rfis");
 const punchListRoutes = require("./routes/punchLists");
 const reportRoutes = require("./routes/reports");
 const userRoutes = require('./routes/users');
+const uploadRoutes = require('./routes/uploads');
 
 const app = express();
 
@@ -60,6 +62,8 @@ mongoose.connection.on("error", (err) => {
   console.error("MongoDB connection error:", err);
 });
 
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/projects", projectRoutes);
@@ -74,7 +78,7 @@ app.use("/api/rfis", rfiRoutes);
 app.use("/api/punch-lists", punchListRoutes);
 app.use("/api/reports", reportRoutes);
 app.use('/api/users', userRoutes);
-
+app.use('/api/upload', uploadRoutes); 
 
 // Error handling middleware
 app.use((err, req, res, next) => {

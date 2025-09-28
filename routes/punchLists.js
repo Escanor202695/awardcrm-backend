@@ -1,7 +1,9 @@
 const express = require('express');
 const PunchList = require('../models/PunchList');
 const { auth } = require('../middleware/auth');
-
+const Project = require('../models/Project');
+const Contact = require('../models/Contact');
+const User = require('../models/User');
 const router = express.Router();
 
 // Get punch list items by project
@@ -37,10 +39,33 @@ router.get('/project/:projectId', auth, async (req, res) => {
 // Create punch list item
 router.post('/', auth, async (req, res) => {
   try {
+    const { project, assignedTo, verifiedBy } = req.body;
+
+    // Check if project exists
+    const existingProject = await Project.findById(project);
+    if (!existingProject) {
+      return res.status(400).json({ message: 'Invalid Project ID: Project does not exist' });
+    }
+
+    // Check if assignedTo contact exists
+    const contactExists = await Contact.findById(assignedTo);
+    if (!contactExists) {
+      return res.status(400).json({ message: 'Invalid Contact ID: AssignedTo does not exist' });
+    }
+
+    // If verifiedBy is provided, check user exists
+    if (verifiedBy) {
+      const userExists = await User.findById(verifiedBy);
+      if (!userExists) {
+        return res.status(400).json({ message: 'Invalid User ID: VerifiedBy does not exist' });
+      }
+    }
+
+    // Save punch item
     const punchItem = new PunchList(req.body);
     await punchItem.save();
     await punchItem.populate('assignedTo', 'company contactName');
-    
+
     res.status(201).json(punchItem);
   } catch (error) {
     res.status(400).json({ message: error.message });
